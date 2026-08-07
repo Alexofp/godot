@@ -79,6 +79,7 @@ class EditorExport;
 class EditorExportPreset;
 class EditorFeatureProfileManager;
 class EditorFileDialog;
+class EditorIconManager;
 class EditorFolding;
 class EditorLayoutsDialog;
 class EditorLog;
@@ -178,6 +179,7 @@ public:
 		TOOLS_ORPHAN_RESOURCES,
 		TOOLS_BUILD_PROFILE_MANAGER,
 		TOOLS_PROJECT_UPGRADE,
+		TOOLS_CLEAR_PROJECT_CACHE,
 		TOOLS_CUSTOM,
 
 		VCS_METADATA,
@@ -359,6 +361,7 @@ private:
 	AcceptDialog *execute_output_dialog = nullptr;
 
 	Ref<Theme> theme;
+	EditorIconManager *icon_manager = nullptr;
 
 	bool follow_system_theme = false;
 	bool use_system_accent_color = false;
@@ -487,6 +490,9 @@ private:
 
 	ProjectUpgradeTool *project_upgrade_tool = nullptr;
 	bool run_project_upgrade_tool = false;
+	ConfirmationDialog *clear_cache_dialog = nullptr;
+
+	LocalVector<String> files_to_delete_on_exit;
 
 	bool was_window_windowed_last = false;
 
@@ -556,6 +562,7 @@ private:
 	void _export_as_menu_option(int p_idx);
 	void _update_file_menu_opened();
 	void _palette_quick_open_dialog();
+	void _clear_cache_confirmed();
 
 	void _remove_plugin_from_enabled(const String &p_name);
 	void _plugin_over_edit(EditorPlugin *p_plugin, Object *p_object, bool p_set_current = true);
