@@ -694,7 +694,7 @@ void ThemeModern::populate_standard_styles(const Ref<EditorTheme> &p_theme, Edit
 			p_theme->set_color("parent_hl_line_color", "Tree", highlight_line_color);
 			p_theme->set_color("children_hl_line_color", "Tree", relationship_line_color);
 			p_theme->set_color("drop_on_item_color", "Tree", p_config.accent_color);
-			p_theme->set_color("drop_position_color", "Tree", p_config.icon_normal_color);
+			p_theme->set_color("drop_position_color", "Tree", p_config.mono_color * Color(1, 1, 1, 0.9));
 			p_theme->set_color("guide_color", "Tree", Color(1, 1, 1, 0));
 			p_theme->set_color("scroll_hint_color", "Tree", Color(0, 0, 0, p_config.dark_theme ? 1.0 : 0.5));
 
@@ -1735,6 +1735,8 @@ void ThemeModern::populate_editor_styles(const Ref<EditorTheme> &p_theme, Editor
 		p_theme->set_color("font_selected_color", "MainScreenContainer", p_config.accent_color);
 		p_theme->set_color("font_unselected_color", "MainScreenContainer", p_config.font_color);
 		p_theme->set_color("icon_selected_color", "MainScreenContainer", p_config.accent_color);
+		p_theme->set_color("icon_unselected_color", "MainScreenContainer", p_config.icon_normal_color);
+		p_theme->set_constant("h_separation", "MainScreenContainer", 4);
 		p_theme->set_stylebox("tab_unselected", "MainScreenContainer", p_config.base_empty_wide_style);
 		p_theme->set_stylebox("tab_selected", "MainScreenContainer", p_config.base_empty_wide_style);
 		p_theme->set_stylebox("tab_hovered", "MainScreenContainer", p_config.base_empty_wide_style);
@@ -1788,6 +1790,7 @@ void ThemeModern::populate_editor_styles(const Ref<EditorTheme> &p_theme, Editor
 		// Bottom panel.
 		Ref<StyleBoxFlat> style_bottom_panel = p_config.content_panel_style->duplicate();
 		style_bottom_panel->set_content_margin_all(p_config.tab_container_style->get_content_margin(SIDE_LEFT));
+		style_bottom_panel->set_content_margin(SIDE_BOTTOM, p_config.content_panel_style->get_content_margin(SIDE_BOTTOM));
 		style_bottom_panel->set_border_width(SIDE_BOTTOM, 0);
 		style_bottom_panel->set_corner_radius_all(EDSCALE_RND(p_config.corner_radius));
 		style_bottom_panel->set_corner_radius(CORNER_BOTTOM_LEFT, 0);
