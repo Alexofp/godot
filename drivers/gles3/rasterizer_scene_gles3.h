@@ -108,7 +108,6 @@ struct RenderDataGLES3 {
 	Transform3D inv_cam_transform;
 	Projection cam_projection;
 	bool cam_orthogonal = false;
-	bool cam_asymmetrical = false;
 	uint32_t camera_visible_layers = 0xFFFFFFFF;
 
 	// For billboards to cast correct shadows.
@@ -422,6 +421,9 @@ private:
 			float screen_pixel_size[2];
 
 			float ambient_light_color_energy[4];
+
+			float reflection_color[3];
+			uint32_t use_reflection_color = 0;
 
 			float ambient_color_sky_mix;
 			uint32_t directional_shadow_count;

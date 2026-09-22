@@ -3844,6 +3844,7 @@ GDScriptParser::ExpressionNode *GDScriptParser::parse_invalid_token(ExpressionNo
 
 GDScriptParser::TypeNode *GDScriptParser::parse_type(bool p_allow_void) {
 	TypeNode *type = alloc_node<TypeNode>();
+	reset_extents(type, current);
 	make_completion_context(p_allow_void ? COMPLETION_TYPE_NAME_OR_VOID : COMPLETION_TYPE_NAME, type);
 	if (!match(GDScriptTokenizer::Token::IDENTIFIER)) {
 		if (match(GDScriptTokenizer::Token::TK_VOID)) {
@@ -3941,6 +3942,8 @@ static void _process_doc_line(const String &p_line, String &r_text, const String
 				// We want to replace `[br][br]` with `\n` (paragraph), so we move the trailing `[br]` here.
 				r_text = r_text.left(-4); // `-len("[br]")`.
 				line = "[br]" + line;
+			} else if (!r_text.ends_with("\n") && line.is_empty()) {
+				line_join = "\n";
 			} else if (!r_text.ends_with("\n")) {
 				line_join = " ";
 			}
