@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  web_tools_editor_plugin.h                                             */
+/*  GodotApp.java                                                         */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,18 +28,65 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#pragma once
+package com.godot.game;
 
-#include "editor/plugins/editor_plugin.h"
+import org.godotengine.godot.Godot;
+import org.godotengine.godot.GodotActivity;
 
-class WebToolsEditorPlugin : public EditorPlugin {
-	GDCLASS(WebToolsEditorPlugin, EditorPlugin);
+import android.os.Bundle;
 
-private:
-	void _download_zip();
+import androidx.activity.EdgeToEdge;
+import androidx.core.splashscreen.SplashScreen;
 
-public:
-	static void initialize();
+/**
+ * Template activity for Godot Android builds.
+ * Feel free to extend and modify this class for your custom logic.
+ */
+public class GodotApp extends GodotActivity {
+	private final Runnable updateWindowAppearance = () -> {
+		Godot godot = getGodot();
+		if (godot != null) {
+			godot.enableImmersiveMode(godot.isInImmersiveMode(), true);
+			godot.enableEdgeToEdge(godot.isInEdgeToEdgeMode(), true);
+			godot.setSystemBarsAppearance();
+		}
+	};
 
-	WebToolsEditorPlugin();
-};
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+		EdgeToEdge.enable(this);
+		super.onCreate(savedInstanceState);
+
+		Godot godot = getGodot();
+		if (godot != null && godot.getDisableGodotSplash()) {
+			splashScreen.setKeepOnScreenCondition(() -> godot.getRunStatus() != Godot.RunStatus.STARTED);
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		updateWindowAppearance.run();
+	}
+
+	@Override
+	public void onGodotMainLoopStarted() {
+		super.onGodotMainLoopStarted();
+		runOnUiThread(updateWindowAppearance);
+	}
+
+	@Override
+	public void onGodotForceQuit(Godot instance) {
+		if (!getPackageName().equals("com.godot.game.instrumented")) {
+			// For instrumented builds, we disable force-quitting to allow the instrumented tests to complete
+			// successfully, otherwise they fail when the process crashes.
+			super.onGodotForceQuit(instance);
+		}
+	}
+
+	@Override
+	protected boolean isPiPEnabled() {
+		return true;
+	}
+}

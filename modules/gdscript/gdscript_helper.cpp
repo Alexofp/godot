@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  jolt_custom_user_data_shape.h                                         */
+/*  gdscript_helper.cpp                                                   */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,31 +28,45 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#pragma once
+#include "gdscript_helper.h"
 
-#include "jolt_custom_decorated_shape.h"
-#include "jolt_custom_shape_type.h"
+#include "core/variant/variant.h"
 
-class JoltCustomUserDataShapeSettings final : public JoltCustomDecoratedShapeSettings {
-public:
-	using JoltCustomDecoratedShapeSettings::JoltCustomDecoratedShapeSettings;
+namespace GDScriptHelper {
 
-	virtual ShapeResult Create() const override;
-};
+Variant construct_empty_value_for_data_type(const GDScriptDataType &p_data_type) {
+	if (p_data_type.kind == GDScriptDataType::BUILTIN) {
+		if (p_data_type.builtin_type == Variant::ARRAY) {
+			Array array;
+			// Typed array.
+			if (p_data_type.has_container_element_type(0)) {
+				const GDScriptDataType &element_type = p_data_type.get_container_element_type(0);
+				array.set_typed(element_type.builtin_type, element_type.native_type, element_type.script_type);
+			}
 
-class JoltCustomUserDataShape final : public JoltCustomDecoratedShape {
-public:
-	static void register_type();
+			return array;
+		} else if (p_data_type.builtin_type == Variant::DICTIONARY) {
+			Dictionary dict;
+			// Typed dictionary.
+			if (p_data_type.has_container_element_types()) {
+				const GDScriptDataType &key_type = p_data_type.get_container_element_type_or_variant(0);
+				const GDScriptDataType &value_type = p_data_type.get_container_element_type_or_variant(1);
+				dict.set_typed(key_type.builtin_type, key_type.native_type, key_type.script_type, value_type.builtin_type, value_type.native_type, value_type.script_type);
+			}
 
-	JoltCustomUserDataShape() :
-			JoltCustomDecoratedShape(JoltCustomShapeSubType::OVERRIDE_USER_DATA) {}
+			return dict;
+		} else {
+			Callable::CallError ce;
+			Variant variant;
+			Variant::construct(p_data_type.builtin_type, variant, nullptr, 0, ce);
 
-	JoltCustomUserDataShape(const JoltCustomUserDataShapeSettings &p_settings, ShapeResult &p_result) :
-			JoltCustomDecoratedShape(JoltCustomShapeSubType::OVERRIDE_USER_DATA, p_settings, p_result) {
-		if (!p_result.HasError()) {
-			p_result.Set(this);
+			ERR_FAIL_COND_V(ce.error != Callable::CallError::CALL_OK, Variant());
+
+			return variant;
 		}
 	}
 
-	virtual JPH::uint64 GetSubShapeUserData(const JPH::SubShapeID &p_sub_shape_id) const override { return GetUserData(); }
-};
+	return Variant();
+}
+
+} //namespace GDScriptHelper
